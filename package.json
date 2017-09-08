@@ -1,0 +1,27 @@
+{
+  "name": "ebla",
+  "version": "1.0.0",
+  "description": "Manpulate browser DOM",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hollowdoor/ebla.git"
+  },
+  "keywords": [
+    "DOM",
+    "append",
+    "html",
+    "text",
+    "object",
+    "pojo"
+  ],
+  "author": "Quentin Engles <hollowdoor99@gmail.com> (https://hollowdoor.github.io/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hollowdoor/ebla/issues"
+  },
+  "homepage": "https://github.com/hollowdoor/ebla#readme"
+}
