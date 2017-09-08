@@ -2,9 +2,20 @@
   "name": "ebla",
   "version": "1.0.0",
   "description": "Manpulate browser DOM",
-  "main": "index.js",
+  "main": "dist/bundle.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "ebam"
+  },
+  "ebam": {
+    "entry": "src/index.js",
+    "test": {
+      "src": "test/src.js",
+      "dest": "test/code.js"
+    },
+    "transforms": {
+      "dangerousTaggedTemplateString": true
+    }
   },
   "repository": {
     "type": "git",
@@ -23,5 +34,10 @@
   "bugs": {
     "url": "https://github.com/hollowdoor/ebla/issues"
   },
-  "homepage": "https://github.com/hollowdoor/ebla#readme"
+  "homepage": "https://github.com/hollowdoor/ebla#readme",
+  "jsnext:main": "dist/bundle.es.js",
+  "module": "dist/bundle.es.js",
+  "dependencies": {
+    "dom-elementals": "^1.0.0"
+  }
 }
