@@ -38,8 +38,10 @@
   "jsnext:main": "dist/bundle.es.js",
   "module": "dist/bundle.es.js",
   "dependencies": {
+    "animation-frame-polyfill": "^1.0.1",
     "array-from": "^2.1.1",
     "css-proxy": "^1.0.0",
-    "dom-elementals": "^1.0.0"
+    "dom-elementals": "^1.0.0",
+    "dom-properties-mixin": "^1.0.0"
   }
 }
