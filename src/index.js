@@ -10,15 +10,12 @@ class Ebla {
         this.element = toElement(value, ...values);
         Ebla.plugins.forEach(plugin=>plugin.init.call(this));
     }
-    contains(v){
-        return this.element.contains(v);
+    appendTo(v){
+        v.appendChild(this.element);
+        return this;
     }
     append(v){
         this.element.appendChild(toElement(v));
-        return this;
-    }
-    appendTo(v){
-        v.appendChild(this.element);
         return this;
     }
     prepend(v){
@@ -58,18 +55,36 @@ class Ebla {
     }
     attr(name, value){
         if(value === void 0){
-            this.element.setAttribute(name, value);
+            if(typeof name === 'object'){
+                Object.keys(name).forEach(key=>{
+                    this.element.setAttribute(key, name[key]);
+                });
+                return this;
+            }
+            return this.element.getAttribute(name);
+
         }
-        return this.element.getAttribute(name);
+        this.element.setAttribute(name, value);
+        return this;
     }
     prop(name, value){
         if(value === void 0){
-            this.element[name] = value;
+            if(typeof name === 'object'){
+                Object.keys(name).forEach(key=>{
+                    this.element[key] = name[key];
+                });
+                return this;
+            }
+            return this.element[name];
         }
-        return this.element[name];
+        this.element[name] = value;
+        return this;
     }
     clone(deep){
         return new Ebla(this.element.cloneNode(deep));
+    }
+    contains(v){
+        return this.element.contains(v);
     }
     animate(...args){
         return this.element.animate(...args);
