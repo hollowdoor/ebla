@@ -14,32 +14,41 @@ class Ebla {
         v.appendChild(this.element);
         return this;
     }
-    append(v){
-        this.element.appendChild(toElement(v));
+    append(...values){
+        values.forEach(value=>{
+            this.element.appendChild(toElement(value));
+        });
         return this;
     }
-    prepend(v){
-        this.element.insertBefore(
-            toElement(v),
-            this.first
-        );
-        return this;
-    }
-    before(v){
-        if(this.element.parentNode){
-            this.element.parentNode.insertBefore(
-                toElement(v),
-                this.element
+    prepend(...values){
+        values.forEach(value=>{
+            this.element.insertBefore(
+                toElement(value),
+                this.first
             );
+        });
+        return this;
+    }
+    before(...values){
+        if(this.element.parentNode){
+            values.forEach(value=>{
+                this.element.parentNode.insertBefore(
+                    toElement(value),
+                    this.element
+                );
+            });
+
         }
         return this;
     }
-    after(v){
+    after(...values){
         if(this.element.parentNode){
-            this.element.parentNode.insertBefore(
-                toElement(v),
-                this.element.nextSibling
-            );
+            values.forEach(value=>{
+                this.element.parentNode.insertBefore(
+                    toElement(value),
+                    this.element.nextSibling
+                );
+            });
         }
         return this;
     }
@@ -80,8 +89,13 @@ class Ebla {
         this.element[name] = value;
         return this;
     }
+    css(source){
+        Object.keys(source).forEach(key=>{
+            this.style[key] = source[key];
+        });
+    }
     clone(deep){
-        return new Ebla(this.element.cloneNode(deep));
+        return new (this.constructor)(this.element.cloneNode(deep));
     }
     contains(v){
         return this.element.contains(v);

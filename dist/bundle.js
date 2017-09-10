@@ -19,39 +19,61 @@ var Ebla = function Ebla(value){
     this.element = domElementals.toElement.apply(void 0, [ value ].concat( values ));
     Ebla.plugins.forEach(function (plugin){ return plugin.init.call(this$1); });
 };
-Ebla.prototype.contains = function contains (v){
-    return this.element.contains(v);
-};
-Ebla.prototype.append = function append (v){
-    this.element.appendChild(domElementals.toElement(v));
-    return this;
-};
 Ebla.prototype.appendTo = function appendTo (v){
     v.appendChild(this.element);
     return this;
 };
-Ebla.prototype.prepend = function prepend (v){
-    this.element.insertBefore(
-        domElementals.toElement(v),
-        this.first
-    );
+Ebla.prototype.append = function append (){
+        var this$1 = this;
+        var values = [], len = arguments.length;
+        while ( len-- ) values[ len ] = arguments[ len ];
+
+    values.forEach(function (value){
+        this$1.element.appendChild(domElementals.toElement(value));
+    });
     return this;
 };
-Ebla.prototype.before = function before (v){
-    if(this.element.parentNode){
-        this.element.parentNode.insertBefore(
-            domElementals.toElement(v),
-            this.element
+Ebla.prototype.prepend = function prepend (){
+        var this$1 = this;
+        var values = [], len = arguments.length;
+        while ( len-- ) values[ len ] = arguments[ len ];
+
+    values.forEach(function (value){
+        this$1.element.insertBefore(
+            domElementals.toElement(value),
+            this$1.first
         );
+    });
+    return this;
+};
+Ebla.prototype.before = function before (){
+        var this$1 = this;
+        var values = [], len = arguments.length;
+        while ( len-- ) values[ len ] = arguments[ len ];
+
+    if(this.element.parentNode){
+        values.forEach(function (value){
+            this$1.element.parentNode.insertBefore(
+                domElementals.toElement(value),
+                this$1.element
+            );
+        });
+
     }
     return this;
 };
-Ebla.prototype.after = function after (v){
+Ebla.prototype.after = function after (){
+        var this$1 = this;
+        var values = [], len = arguments.length;
+        while ( len-- ) values[ len ] = arguments[ len ];
+
     if(this.element.parentNode){
-        this.element.parentNode.insertBefore(
-            domElementals.toElement(v),
-            this.element.nextSibling
-        );
+        values.forEach(function (value){
+            this$1.element.parentNode.insertBefore(
+                domElementals.toElement(value),
+                this$1.element.nextSibling
+            );
+        });
     }
     return this;
 };
@@ -66,19 +88,48 @@ Ebla.prototype.text = function text (s){
     return this;
 };
 Ebla.prototype.attr = function attr (name, value){
+        var this$1 = this;
+
     if(value === void 0){
-        this.element.setAttribute(name, value);
+        if(typeof name === 'object'){
+            Object.keys(name).forEach(function (key){
+                this$1.element.setAttribute(key, name[key]);
+            });
+            return this;
+        }
+        return this.element.getAttribute(name);
+
     }
-    return this.element.getAttribute(name);
+    this.element.setAttribute(name, value);
+    return this;
 };
 Ebla.prototype.prop = function prop (name, value){
+        var this$1 = this;
+
     if(value === void 0){
-        this.element[name] = value;
+        if(typeof name === 'object'){
+            Object.keys(name).forEach(function (key){
+                this$1.element[key] = name[key];
+            });
+            return this;
+        }
+        return this.element[name];
     }
-    return this.element[name];
+    this.element[name] = value;
+    return this;
+};
+Ebla.prototype.css = function css (source){
+        var this$1 = this;
+
+    Object.keys(source).forEach(function (key){
+        this$1.style[key] = source[key];
+    });
 };
 Ebla.prototype.clone = function clone (deep){
-    return new Ebla(this.element.cloneNode(deep));
+    return new (this.constructor)(this.element.cloneNode(deep));
+};
+Ebla.prototype.contains = function contains (v){
+    return this.element.contains(v);
 };
 Ebla.prototype.animate = function animate (){
         var args = [], len = arguments.length;
