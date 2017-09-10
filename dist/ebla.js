@@ -659,6 +659,98 @@ function appendChildren(el, children){
     return el;
 }
 
+/*
+object-assign
+(c) Sindre Sorhus
+@license MIT
+*/
+
+/* eslint-disable no-unused-vars */
+var getOwnPropertySymbols = Object.getOwnPropertySymbols;
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+var propIsEnumerable = Object.prototype.propertyIsEnumerable;
+
+function toObject(val) {
+	if (val === null || val === undefined) {
+		throw new TypeError('Object.assign cannot be called with null or undefined');
+	}
+
+	return Object(val);
+}
+
+function shouldUseNative() {
+	try {
+		if (!Object.assign) {
+			return false;
+		}
+
+		// Detect buggy property enumeration order in older V8 versions.
+
+		// https://bugs.chromium.org/p/v8/issues/detail?id=4118
+		var test1 = new String('abc');  // eslint-disable-line no-new-wrappers
+		test1[5] = 'de';
+		if (Object.getOwnPropertyNames(test1)[0] === '5') {
+			return false;
+		}
+
+		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
+		var test2 = {};
+		for (var i = 0; i < 10; i++) {
+			test2['_' + String.fromCharCode(i)] = i;
+		}
+		var order2 = Object.getOwnPropertyNames(test2).map(function (n) {
+			return test2[n];
+		});
+		if (order2.join('') !== '0123456789') {
+			return false;
+		}
+
+		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
+		var test3 = {};
+		'abcdefghijklmnopqrst'.split('').forEach(function (letter) {
+			test3[letter] = letter;
+		});
+		if (Object.keys(Object.assign({}, test3)).join('') !==
+				'abcdefghijklmnopqrst') {
+			return false;
+		}
+
+		return true;
+	} catch (err) {
+		// We don't expect any of the above to throw, but better to be safe.
+		return false;
+	}
+}
+
+var objectAssign = shouldUseNative() ? Object.assign : function (target, source) {
+	var arguments$1 = arguments;
+
+	var from;
+	var to = toObject(target);
+	var symbols;
+
+	for (var s = 1; s < arguments.length; s++) {
+		from = Object(arguments$1[s]);
+
+		for (var key in from) {
+			if (hasOwnProperty.call(from, key)) {
+				to[key] = from[key];
+			}
+		}
+
+		if (getOwnPropertySymbols) {
+			symbols = getOwnPropertySymbols(from);
+			for (var i = 0; i < symbols.length; i++) {
+				if (propIsEnumerable.call(from, symbols[i])) {
+					to[symbols[i]] = from[symbols[i]];
+				}
+			}
+		}
+	}
+
+	return to;
+};
+
 var decamelize$1 = function (str, sep) {
 	if (typeof str !== 'string') {
 		throw new TypeError('Expected a string');
@@ -832,7 +924,12 @@ var props = (function (){
                 return this.element.firstChild;
             },
             set: function set(value){
-                this.element.replaceChild(value, this.firstChild);
+                if(this.element.firstChild !== void 0){
+                    return this.element.replaceChild(
+                        get(value), this.element.firstChild
+                    );
+                }
+                this.element.appendChild(get(value));
             }
         },
         last: {
@@ -840,7 +937,12 @@ var props = (function (){
                 return this.element.lastChild;
             },
             set: function set(value){
-                this.element.replaceChild(value, this.lastChild);
+                if(this.element.lastChild !== void 0){
+                    return this.element.replaceChild(
+                        get(value), this.element.lastChild
+                    );
+                }
+                this.element.appendChild(get(value));
             }
         },
         children: {
@@ -852,7 +954,7 @@ var props = (function (){
 
                 this.element.innerHTML = '';
                 arrayFrom(children).forEach(function (child){
-                    this$1.element.appendChild(child);
+                    this$1.element.appendChild(get(child));
                 });
             }
         },
@@ -869,12 +971,18 @@ var props = (function (){
                 }
                 return this._style;
             }
+        },
+        root: {
+            get: function get(){
+                return this.element.rootNode;
+            }
         }
     };
 
 
     //Define simpler getters, and setters
-    ['value', 'innerHTML']
+    ['value', 'innerHTML', 'outerHTML', 'textContent',
+    'className', 'classList']
     .forEach(function (prop){
         props[prop] = {
             get: function get(){
@@ -887,7 +995,7 @@ var props = (function (){
     });
 
     //Define simpler getters
-    ['nodeName']
+    ['nodeName', 'nextSibling', 'nodeType', 'nodeName']
     .forEach(function (prop){
         props[prop] = {
             get: function get(){
@@ -905,6 +1013,11 @@ var props = (function (){
 function mixin(dest){
     Object.defineProperties(dest, props);
     return dest;
+}
+
+function get(e){
+    if(e.element !== void 0) { return e.element; }
+    return e;
 }
 
 var prefix = ['webkit', 'moz', 'ms', 'o'];
@@ -964,16 +1077,16 @@ Ebla.prototype.contains = function contains (v){
     return this.element.contains(v);
 };
 Ebla.prototype.append = function append (v){
-    this.element.appendChild(element(v).element);
+    this.element.appendChild(toElement(v));
     return this;
 };
 Ebla.prototype.appendTo = function appendTo (v){
-    new Ebla(v).append(this.element);
+    v.appendChild(this.element);
     return this;
 };
 Ebla.prototype.prepend = function prepend (v){
     this.element.insertBefore(
-        element(v).element,
+        toElement(v),
         this.first
     );
     return this;
@@ -1032,15 +1145,20 @@ function E(value){
 E.prototype = Object.create(Ebla.prototype);
 
 Ebla.plugins = [];
-E.plugin = function createPlugin(create){
-    var control = create(Ebla.prototype);
-    if(typeof control === 'function'){
-        if(typeof control['init'] !== 'function'){
-            return;
+objectAssign(E, {
+    fragment: function fragment(){
+        return document.createDocumentFragment();
+    },
+    plugin: function plugin(create){
+        var control = create(Ebla.prototype);
+        if(typeof control === 'function'){
+            if(typeof control['init'] !== 'function'){
+                return;
+            }
+            Elba.plugins.push(control);
         }
-        Elba.plugins.push(control);
     }
-};
+});
 
 function select(s){
     try{
@@ -1065,21 +1183,31 @@ function spawn(v, count){
     }
 }
 
-var ElementGenerator = function ElementGenerator(create){
+var ElementGenerator = function ElementGenerator(create, parent){
+    if ( parent === void 0 ) parent = null;
+
     this._create = create;
+    this._parent = parent;
 };
 ElementGenerator.prototype.create = function create (){
         var args = [], len = arguments.length;
         while ( len-- ) args[ len ] = arguments[ len ];
 
+    var create = this._create;
     return ElementGenerator.getElementAsync(
-        (this._create).apply(void 0, args)
+        create.apply(void 0, args),
+        this._parent
     );
 };
-ElementGenerator.getElementAsync = function getElementAsync (v){
+ElementGenerator.getElementAsync = function getElementAsync (v, parent){
+        if ( parent === void 0 ) parent = null;
+
     return new Promise(function (resolve, reject){
         requestAnimationFrame(function (){
             try{
+                if(parent && isElement(parent)){
+                    return resolve(E(v).appendTo(parent));
+                }
                 resolve(E(v));
             }catch(e){ reject(e); }
         });
@@ -1100,13 +1228,13 @@ ElementGenerator.prototype[Symbol.iterator] = function (){
     };
 };
 
-function generate(create){
+function generate(create, parent){
     var value;
-    if(create !== 'function'){
+    if(typeof create !== 'function'){
         value = create;
         create = function (){ return value; };
     }
-    return new ElementGenerator(create);
+    return new ElementGenerator(create, parent);
 }
 
 exports.E = E;

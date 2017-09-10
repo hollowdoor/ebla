@@ -1,5 +1,6 @@
-import { toElement, toHTML } from 'dom-elementals';
+import { toElement, toHTML, isElement } from 'dom-elementals';
 import arrayFrom from 'array-from';
+import objectAssign from 'object-assign';
 import { mixin } from 'dom-properties-mixin';
 import { requestAnimationFrame } from 'animation-frame-polyfill';
 
@@ -13,16 +14,16 @@ class Ebla {
         return this.element.contains(v);
     }
     append(v){
-        this.element.appendChild(element(v).element);
+        this.element.appendChild(toElement(v));
         return this;
     }
     appendTo(v){
-        new Ebla(v).append(this.element);
+        v.appendChild(this.element);
         return this;
     }
     prepend(v){
         this.element.insertBefore(
-            element(v).element,
+            toElement(v),
             this.first
         );
         return this;
@@ -73,15 +74,20 @@ export function E(value, ...values){
 E.prototype = Object.create(Ebla.prototype);
 
 Ebla.plugins = [];
-E.plugin = function createPlugin(create){
-    let control = create(Ebla.prototype);
-    if(typeof control === 'function'){
-        if(typeof control['init'] !== 'function'){
-            return;
+objectAssign(E, {
+    fragment(){
+        return document.createDocumentFragment();
+    },
+    plugin(create){
+        let control = create(Ebla.prototype);
+        if(typeof control === 'function'){
+            if(typeof control['init'] !== 'function'){
+                return;
+            }
+            Elba.plugins.push(control);
         }
-        Elba.plugins.push(control);
     }
-};
+});
 
 export function select(s){
     try{
@@ -105,18 +111,24 @@ export function spawn(v, count = 1){
 }
 
 class ElementGenerator {
-    constructor(create){
+    constructor(create, parent = null){
         this._create = create;
+        this._parent = parent;
     }
     create(...args){
+        let create = this._create;
         return ElementGenerator.getElementAsync(
-            (this._create)(...args)
+            create(...args),
+            this._parent
         );
     }
-    static getElementAsync(v){
+    static getElementAsync(v, parent = null){
         return new Promise((resolve, reject)=>{
             requestAnimationFrame(()=>{
                 try{
+                    if(parent && isElement(parent)){
+                        return resolve(E(v).appendTo(parent));
+                    }
                     resolve(E(v));
                 }catch(e){ reject(e); }
             });
@@ -134,11 +146,11 @@ class ElementGenerator {
     }
 }
 
-export function generate(create){
+export function generate(create, parent){
     let value;
-    if(create !== 'function'){
+    if(typeof create !== 'function'){
         value = create;
         create = ()=>value;
     }
-    return new ElementGenerator(create);
+    return new ElementGenerator(create, parent);
 }

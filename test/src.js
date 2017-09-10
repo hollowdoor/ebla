@@ -1,5 +1,12 @@
-import { E } from '../';
+import { E, generate } from '../';
 console.log(E('title').textContent);
 console.log(E('title').html());
 E('title').html("Hello Universe!");
 console.log(E('#divvy').innerHTML);
+
+let paras1 = generate((contents)=>`<p>${contents}</p>`);
+paras1.create('one!').then(p=>p.appendTo(document.body));
+let paras2 = generate(
+    (contents)=>`<p>${contents}</p>`, document.body
+);
+paras2.create('two!').then(p=>paras2.create('three!'));

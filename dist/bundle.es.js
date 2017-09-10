@@ -1,5 +1,6 @@
-import { toElement, toHTML } from 'dom-elementals';
+import { isElement, toElement, toHTML } from 'dom-elementals';
 import arrayFrom from 'array-from';
+import objectAssign from 'object-assign';
 import { mixin } from 'dom-properties-mixin';
 import { requestAnimationFrame } from 'animation-frame-polyfill';
 
@@ -16,16 +17,16 @@ Ebla.prototype.contains = function contains (v){
     return this.element.contains(v);
 };
 Ebla.prototype.append = function append (v){
-    this.element.appendChild(element(v).element);
+    this.element.appendChild(toElement(v));
     return this;
 };
 Ebla.prototype.appendTo = function appendTo (v){
-    new Ebla(v).append(this.element);
+    v.appendChild(this.element);
     return this;
 };
 Ebla.prototype.prepend = function prepend (v){
     this.element.insertBefore(
-        element(v).element,
+        toElement(v),
         this.first
     );
     return this;
@@ -84,15 +85,20 @@ function E(value){
 E.prototype = Object.create(Ebla.prototype);
 
 Ebla.plugins = [];
-E.plugin = function createPlugin(create){
-    var control = create(Ebla.prototype);
-    if(typeof control === 'function'){
-        if(typeof control['init'] !== 'function'){
-            return;
+objectAssign(E, {
+    fragment: function fragment(){
+        return document.createDocumentFragment();
+    },
+    plugin: function plugin(create){
+        var control = create(Ebla.prototype);
+        if(typeof control === 'function'){
+            if(typeof control['init'] !== 'function'){
+                return;
+            }
+            Elba.plugins.push(control);
         }
-        Elba.plugins.push(control);
     }
-};
+});
 
 function select(s){
     try{
@@ -117,21 +123,31 @@ function spawn(v, count){
     }
 }
 
-var ElementGenerator = function ElementGenerator(create){
+var ElementGenerator = function ElementGenerator(create, parent){
+    if ( parent === void 0 ) parent = null;
+
     this._create = create;
+    this._parent = parent;
 };
 ElementGenerator.prototype.create = function create (){
         var args = [], len = arguments.length;
         while ( len-- ) args[ len ] = arguments[ len ];
 
+    var create = this._create;
     return ElementGenerator.getElementAsync(
-        (this._create).apply(void 0, args)
+        create.apply(void 0, args),
+        this._parent
     );
 };
-ElementGenerator.getElementAsync = function getElementAsync (v){
+ElementGenerator.getElementAsync = function getElementAsync (v, parent){
+        if ( parent === void 0 ) parent = null;
+
     return new Promise(function (resolve, reject){
         requestAnimationFrame(function (){
             try{
+                if(parent && isElement(parent)){
+                    return resolve(E(v).appendTo(parent));
+                }
                 resolve(E(v));
             }catch(e){ reject(e); }
         });
@@ -152,13 +168,13 @@ ElementGenerator.prototype[Symbol.iterator] = function (){
     };
 };
 
-function generate(create){
+function generate(create, parent){
     var value;
-    if(create !== 'function'){
+    if(typeof create !== 'function'){
         value = create;
         create = function (){ return value; };
     }
-    return new ElementGenerator(create);
+    return new ElementGenerator(create, parent);
 }
 
 export { E, select, spawn, generate };
