@@ -28,6 +28,24 @@ class Ebla {
         );
         return this;
     }
+    before(v){
+        if(this.element.parentNode){
+            this.element.parentNode.insertBefore(
+                toElement(v),
+                this.element
+            );
+        }
+        return this;
+    }
+    after(v){
+        if(this.element.parentNode){
+            this.element.parentNode.insertBefore(
+                toElement(v),
+                this.element.nextSibling
+            );
+        }
+        return this;
+    }
     html(s){
         if(s === void 0) return this.element.innerHTML;
         this.element.innerHTML = toHTML(s);

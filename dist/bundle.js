@@ -37,6 +37,24 @@ Ebla.prototype.prepend = function prepend (v){
     );
     return this;
 };
+Ebla.prototype.before = function before (v){
+    if(this.element.parentNode){
+        this.element.parentNode.insertBefore(
+            domElementals.toElement(v),
+            this.element
+        );
+    }
+    return this;
+};
+Ebla.prototype.after = function after (v){
+    if(this.element.parentNode){
+        this.element.parentNode.insertBefore(
+            domElementals.toElement(v),
+            this.element.nextSibling
+        );
+    }
+    return this;
+};
 Ebla.prototype.html = function html (s){
     if(s === void 0) { return this.element.innerHTML; }
     this.element.innerHTML = domElementals.toHTML(s);

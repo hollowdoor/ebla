@@ -3,6 +3,11 @@ console.log(E('title').textContent);
 console.log(E('title').html());
 E('title').html("Hello Universe!");
 console.log(E('#divvy').innerHTML);
+E('#divvy').prepend('<i>ieee</i>');
+let s = E('<p>Something</p>');
+s.appendTo(document.body);
+s.before('<p>Before something</p>');
+s.after('<p>After something</p>');
 
 let paras1 = generate((contents)=>`<p>${contents}</p>`);
 paras1.create('one!').then(p=>p.appendTo(document.body));

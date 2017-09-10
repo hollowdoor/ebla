@@ -1093,6 +1093,24 @@ Ebla.prototype.prepend = function prepend (v){
     );
     return this;
 };
+Ebla.prototype.before = function before (v){
+    if(this.element.parentNode){
+        this.element.parentNode.insertBefore(
+            toElement(v),
+            this.element
+        );
+    }
+    return this;
+};
+Ebla.prototype.after = function after (v){
+    if(this.element.parentNode){
+        this.element.parentNode.insertBefore(
+            toElement(v),
+            this.element.nextSibling
+        );
+    }
+    return this;
+};
 Ebla.prototype.html = function html (s){
     if(s === void 0) { return this.element.innerHTML; }
     this.element.innerHTML = toHTML(s);
@@ -1228,6 +1246,11 @@ console.log(E('title').textContent);
 console.log(E('title').html());
 E('title').html("Hello Universe!");
 console.log(E('#divvy').innerHTML);
+E('#divvy').prepend('<i>ieee</i>');
+var s = E('<p>Something</p>');
+s.appendTo(document.body);
+s.before('<p>Before something</p>');
+s.after('<p>After something</p>');
 
 var paras1 = generate(function (contents){ return ("<p>" + contents + "</p>"); });
 paras1.create('one!').then(function (p){ return p.appendTo(document.body); });
