@@ -10,7 +10,7 @@ var Ebla = function Ebla(value){
 
     mixin(this);
     this.element = toElement.apply(void 0, [ value ].concat( values ));
-    Ebla.plugins.forEach(function (plugin){ return plugin(this$1); });
+    Ebla.plugins.forEach(function (plugin){ return plugin.init.call(this$1); });
 };
 Ebla.prototype.contains = function contains (v){
     return this.element.contains(v);
@@ -31,24 +31,23 @@ Ebla.prototype.prepend = function prepend (v){
     return this;
 };
 Ebla.prototype.html = function html (s){
-    if(!defined(s)) { return this.element.innerHTML; }
-    this.element.innerHTML = '';
-    this.append(s);
+    if(s === void 0) { return this.element.innerHTML; }
+    this.element.innerHTML = toHTML(s);
     return this;
 };
 Ebla.prototype.text = function text (s){
-    if(!defined(s)) { return this.element.textContent; }
+    if(s === void 0) { return this.element.textContent; }
     this.element.textContent = s;
     return this;
 };
 Ebla.prototype.attr = function attr (name, value){
-    if(defined(value)){
+    if(value === void 0){
         this.element.setAttribute(name, value);
     }
     return this.element.getAttribute(name);
 };
 Ebla.prototype.prop = function prop (name, value){
-    if(defined(value)){
+    if(value === void 0){
         this.element[name] = value;
     }
     return this.element[name];
@@ -56,8 +55,17 @@ Ebla.prototype.prop = function prop (name, value){
 Ebla.prototype.clone = function clone (deep){
     return new Ebla(this.element.cloneNode(deep));
 };
+Ebla.prototype.animate = function animate (){
+        var args = [], len = arguments.length;
+        while ( len-- ) args[ len ] = arguments[ len ];
+
+    return (ref = this.element).animate.apply(ref, args);
+        var ref;
+};
 Ebla.prototype.generate = function generate$1 (){
-    return generate(toHTML(this.element));
+        var this$1 = this;
+
+    return generate(function (){ return this$1.element.cloneNode(true); });
 };
 
 function E(value){
@@ -76,21 +84,21 @@ function E(value){
 E.prototype = Object.create(Ebla.prototype);
 
 Ebla.plugins = [];
-
-E.plugin = function createPlugin(ref){
-    var create = ref.create;
-    var onInstance = ref.onInstance;
-
-    create(Ebla.prototype);
-    if(onInstance)
-        { Ebla.plugins.push(onInstance); }
+E.plugin = function createPlugin(create){
+    var control = create(Ebla.prototype);
+    if(typeof control === 'function'){
+        if(typeof control['init'] !== 'function'){
+            return;
+        }
+        Elba.plugins.push(control);
+    }
 };
 
 function select(s){
     try{
         return arrayFrom(
             document.querySelectorAll(s)
-        ).map(E);
+        ).map(function (e){ return E(e); });
     }catch(e){
         throw e;
     }
@@ -116,12 +124,27 @@ ElementGenerator.prototype.create = function create (){
         var args = [], len = arguments.length;
         while ( len-- ) args[ len ] = arguments[ len ];
 
-    return createElementAsync((this._create).apply(void 0, args));
+    return ElementGenerator.getElementAsync(
+        (this._create).apply(void 0, args)
+    );
+};
+ElementGenerator.getElementAsync = function getElementAsync (v){
+    return new Promise(function (resolve, reject){
+        requestAnimationFrame(function (){
+            try{
+                resolve(E(v));
+            }catch(e){ reject(e); }
+        });
+    });
 };
 ElementGenerator.prototype[Symbol.iterator] = function (){
     return {
         next: function next(){
-            return this.create();
+                var args = [], len = arguments.length;
+                while ( len-- ) args[ len ] = arguments[ len ];
+
+            return (ref = this).create.apply(ref, args);
+                var ref;
         },
         done: function done(){
             return false;
@@ -136,16 +159,6 @@ function generate(create){
         create = function (){ return value; };
     }
     return new ElementGenerator(create);
-}
-
-function createElementAsync(v){
-    return new Promise(function (resolve, reject){
-        requestAnimationFrame(function (){
-            try{
-                resolve(E(v));
-            }catch(e){ reject(e); }
-        });
-    });
 }
 
 export { E, select, spawn, generate };

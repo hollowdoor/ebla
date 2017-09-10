@@ -1,4 +1,4 @@
-import { toElement, toHTML, isElement } from 'dom-elementals';
+import { toElement, toHTML } from 'dom-elementals';
 import arrayFrom from 'array-from';
 import { mixin } from 'dom-properties-mixin';
 import { requestAnimationFrame } from 'animation-frame-polyfill';
@@ -28,24 +28,23 @@ class Ebla {
         return this;
     }
     html(s){
-        if(!defined(s)) return this.element.innerHTML;
-        this.element.innerHTML = '';
-        this.append(s);
+        if(s === void 0) return this.element.innerHTML;
+        this.element.innerHTML = toHTML(s);
         return this;
     }
     text(s){
-        if(!defined(s)) return this.element.textContent;
+        if(s === void 0) return this.element.textContent;
         this.element.textContent = s;
         return this;
     }
     attr(name, value){
-        if(defined(value)){
+        if(value === void 0){
             this.element.setAttribute(name, value);
         }
         return this.element.getAttribute(name);
     }
     prop(name, value){
-        if(defined(value)){
+        if(value === void 0){
             this.element[name] = value;
         }
         return this.element[name];
