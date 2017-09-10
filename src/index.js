@@ -1,4 +1,4 @@
-import { toElement, toHTML } from 'dom-elementals';
+import { toElement, toHTML, isElement } from 'dom-elementals';
 import arrayFrom from 'array-from';
 import { mixin } from 'dom-properties-mixin';
 import { requestAnimationFrame } from 'animation-frame-polyfill';
@@ -7,7 +7,7 @@ class Ebla {
     constructor(value, ...values){
         mixin(this);
         this.element = toElement(value, ...values);
-        Ebla.plugins.forEach(plugin=>plugin(this));
+        Ebla.plugins.forEach(plugin=>plugin.init.call(this));
     }
     contains(v){
         return this.element.contains(v);
@@ -53,8 +53,11 @@ class Ebla {
     clone(deep){
         return new Ebla(this.element.cloneNode(deep));
     }
+    animate(...args){
+        return this.element.animate(...args);
+    }
     generate(){
-        return generate(toHTML(this.element));
+        return generate(()=>this.element.cloneNode(true));
     }
 }
 
@@ -71,18 +74,21 @@ export function E(value, ...values){
 E.prototype = Object.create(Ebla.prototype);
 
 Ebla.plugins = [];
-
-E.plugin = function createPlugin({create, onInstance}){
-    create(Ebla.prototype);
-    if(onInstance)
-        Ebla.plugins.push(onInstance);
+E.plugin = function createPlugin(create){
+    let control = create(Ebla.prototype);
+    if(typeof control === 'function'){
+        if(typeof control['init'] !== 'function'){
+            return;
+        }
+        Elba.plugins.push(control);
+    }
 };
 
 export function select(s){
     try{
         return arrayFrom(
             document.querySelectorAll(s)
-        ).map(E);
+        ).map(e=>E(e));
     }catch(e){
         throw e;
     }
@@ -104,12 +110,23 @@ class ElementGenerator {
         this._create = create;
     }
     create(...args){
-        return createElementAsync((this._create)(...args));
+        return ElementGenerator.getElementAsync(
+            (this._create)(...args)
+        );
+    }
+    static getElementAsync(v){
+        return new Promise((resolve, reject)=>{
+            requestAnimationFrame(()=>{
+                try{
+                    resolve(E(v));
+                }catch(e){ reject(e); }
+            });
+        });
     }
     [Symbol.iterator](){
         return {
-            next(){
-                return this.create();
+            next(...args){
+                return this.create(...args);
             },
             done(){
                 return false;
@@ -125,14 +142,4 @@ export function generate(create){
         create = ()=>value;
     }
     return new ElementGenerator(create);
-}
-
-function createElementAsync(v){
-    return new Promise((resolve, reject)=>{
-        requestAnimationFrame(()=>{
-            try{
-                resolve(E(v));
-            }catch(e){ reject(e); }
-        });
-    });
 }
