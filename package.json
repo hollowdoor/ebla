@@ -40,6 +40,7 @@
   "dependencies": {
     "animation-frame-polyfill": "^1.0.1",
     "array-from": "^2.1.1",
+    "computed-styles": "^1.1.2",
     "css-proxy": "^1.0.0",
     "dom-elementals": "^1.0.0",
     "dom-properties-mixin": "^1.0.0",

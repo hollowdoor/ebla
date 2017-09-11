@@ -2,12 +2,13 @@ import { toElement, toHTML, isElement } from 'dom-elementals';
 import arrayFrom from 'array-from';
 import objectAssign from 'object-assign';
 import isObject from 'isobject';
-import { mixin } from 'dom-properties-mixin';
+import { mixinDOMProperties } from 'dom-properties-mixin';
 import { requestAnimationFrame } from 'animation-frame-polyfill';
+import computedStyles from 'computed-styles';
 
 class Ebla {
     constructor(value, ...values){
-        mixin(this);
+        mixinDOMProperties(this);
         this.element = toElement(value, ...values);
         Ebla.plugins.forEach(plugin=>plugin.init.call(this));
     }
@@ -103,6 +104,9 @@ class Ebla {
     }
     animate(...args){
         return this.element.animate(...args);
+    }
+    getComputeStyles(){
+        return computedStyles(this.element);
     }
     generate(){
         return generate(()=>this.element.cloneNode(true));

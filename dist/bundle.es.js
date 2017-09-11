@@ -2,15 +2,16 @@ import { isElement, toElement, toHTML } from 'dom-elementals';
 import arrayFrom from 'array-from';
 import objectAssign from 'object-assign';
 import isObject from 'isobject';
-import { mixin } from 'dom-properties-mixin';
+import { mixinDOMProperties } from 'dom-properties-mixin';
 import { requestAnimationFrame } from 'animation-frame-polyfill';
+import computedStyles from 'computed-styles';
 
 var Ebla = function Ebla(value){
     var this$1 = this;
     var values = [], len = arguments.length - 1;
     while ( len-- > 0 ) values[ len ] = arguments[ len + 1 ];
 
-    mixin(this);
+    mixinDOMProperties(this);
     this.element = toElement.apply(void 0, [ value ].concat( values ));
     Ebla.plugins.forEach(function (plugin){ return plugin.init.call(this$1); });
 };
@@ -132,6 +133,9 @@ Ebla.prototype.animate = function animate (){
 
     return (ref = this.element).animate.apply(ref, args);
         var ref;
+};
+Ebla.prototype.getComputeStyles = function getComputeStyles (){
+    return computedStyles(this.element);
 };
 Ebla.prototype.generate = function generate$1 (){
         var this$1 = this;

@@ -10,13 +10,14 @@ var objectAssign = _interopDefault(require('object-assign'));
 var isObject = _interopDefault(require('isobject'));
 var domPropertiesMixin = require('dom-properties-mixin');
 var animationFramePolyfill = require('animation-frame-polyfill');
+var computedStyles = _interopDefault(require('computed-styles'));
 
 var Ebla = function Ebla(value){
     var this$1 = this;
     var values = [], len = arguments.length - 1;
     while ( len-- > 0 ) values[ len ] = arguments[ len + 1 ];
 
-    domPropertiesMixin.mixin(this);
+    domPropertiesMixin.mixinDOMProperties(this);
     this.element = domElementals.toElement.apply(void 0, [ value ].concat( values ));
     Ebla.plugins.forEach(function (plugin){ return plugin.init.call(this$1); });
 };
@@ -138,6 +139,9 @@ Ebla.prototype.animate = function animate (){
 
     return (ref = this.element).animate.apply(ref, args);
         var ref;
+};
+Ebla.prototype.getComputeStyles = function getComputeStyles (){
+    return computedStyles(this.element);
 };
 Ebla.prototype.generate = function generate$1 (){
         var this$1 = this;

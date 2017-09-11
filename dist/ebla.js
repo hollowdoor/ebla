@@ -1015,6 +1015,10 @@ function mixin(dest){
     return dest;
 }
 
+function mixinDOMProperties(dest){
+    return mixin(dest);
+}
+
 function get(e){
     if(e.element !== void 0) { return e.element; }
     return e;
@@ -1064,12 +1068,80 @@ var cancelAnimationFrame = function () {
   return window.cancelAnimationFrame.bind(window);
 }();
 
+var isDefined = function (a) { return typeof a !== 'undefined'; };
+var isUndefined = function (a) { return typeof a === 'undefined'; };
+var isObject$1 = function (a) { return a !== null && typeof a === 'object'; };
+
+// from https://github.com/npm-dom/is-dom/blob/master/index.js
+function isNode(val){
+  if (!isObject$1(val)) { return false; }
+  if (isDefined(window) && isObject$1(window.Node)) { return val instanceof window.Node; }
+  return 'number' == typeof val.nodeType && 'string' == typeof val.nodeName;
+}
+
+var useComputedStyles =  isDefined(window) && isDefined(window.getComputedStyle);
+
+// Gets computed styles for an element
+// from https://github.com/jquery/jquery/blob/master/src/css/var/getStyles.js
+function getComputedStyles(node) {
+  if (useComputedStyles) {
+    var view = node.ownerDocument.defaultView;
+    if ( !view.opener ) { view = window; }
+    return view.getComputedStyle(node,null);
+  } else {
+    return node.currentStyle || node.style;
+  }
+}
+
+/**
+* Returns a collection of CSS property-value pairs
+* @param  {Element} node A DOM element to copy styles from
+* @param  {Object} [target] An optional object to copy styles to
+* @param {(Object|Boolean)} [default=true] A collection of CSS property-value pairs, false: copy none, true: copy all
+* @return {object} collection of CSS property-value pairs
+* @api public
+*/
+function computedStyles(node, target, styleList) {
+  if ( target === void 0 ) target = {};
+  if ( styleList === void 0 ) styleList = true;
+
+  if (!isNode(node)) {
+    throw new Error('parameter 1 is not of type \'Element\'');
+  }
+
+  if (styleList === false) { return target; }
+
+  var computed = getComputedStyles(node);
+
+  if (styleList === true) {
+    var keysArray = useComputedStyles ? computed : Object.keys(computed);
+  } else {
+    var keysArray = Object.keys(styleList);
+  }
+
+  for(var i = 0, l = keysArray.length; i < l; i++){
+    var key = keysArray[i];
+
+    var def = styleList === true || styleList[key];
+    if (def === false || isUndefined(def)) { continue; }  // copy never
+
+    var value = /* computed.getPropertyValue(key) || */ computed[key];  // using getPropertyValue causes error in IE11
+    if (typeof value !== 'string' || value === '') { continue; } // invalid value
+
+    if (def === true || value !== def ) {  // styleList === true || styleList[key] === true || styleList[key] !== value
+      target[key] = value;
+    }
+  }
+
+  return target;
+}
+
 var Ebla = function Ebla(value){
     var this$1 = this;
     var values = [], len = arguments.length - 1;
     while ( len-- > 0 ) values[ len ] = arguments[ len + 1 ];
 
-    mixin(this);
+    mixinDOMProperties(this);
     this.element = toElement.apply(void 0, [ value ].concat( values ));
     Ebla.plugins.forEach(function (plugin){ return plugin.init.call(this$1); });
 };
@@ -1191,6 +1263,9 @@ Ebla.prototype.animate = function animate (){
 
     return (ref = this.element).animate.apply(ref, args);
         var ref;
+};
+Ebla.prototype.getComputeStyles = function getComputeStyles (){
+    return computedStyles(this.element);
 };
 Ebla.prototype.generate = function generate$1 (){
         var this$1 = this;
