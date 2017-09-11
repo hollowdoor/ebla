@@ -43,6 +43,7 @@
     "css-proxy": "^1.0.0",
     "dom-elementals": "^1.0.0",
     "dom-properties-mixin": "^1.0.0",
+    "isobject": "^3.0.1",
     "object-assign": "^4.1.1"
   }
 }

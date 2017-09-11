@@ -1,6 +1,7 @@
 import { isElement, toElement, toHTML } from 'dom-elementals';
 import arrayFrom from 'array-from';
 import objectAssign from 'object-assign';
+import isObject from 'isobject';
 import { mixin } from 'dom-properties-mixin';
 import { requestAnimationFrame } from 'animation-frame-polyfill';
 
@@ -196,7 +197,11 @@ var ElementGenerator = function ElementGenerator(create, parent){
     if ( parent === void 0 ) parent = null;
 
     this._create = create;
-    this._parent = parent;
+    if(isObject(parent) && !isElement(parent)){
+        parent = parent.element;
+    }
+
+    this._parent = isElement(parent) ? parent : null;
 };
 ElementGenerator.prototype.create = function create (){
         var args = [], len = arguments.length;

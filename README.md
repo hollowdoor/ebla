@@ -80,7 +80,7 @@ The `value` parameter on these methods can be the same as `E(value)`.
 
 Append `el.element` to a `parent` element.
 
-### el.append(...value)
+### el.append(...values)
 
 Append child `values` to `el.element`.
 
@@ -116,9 +116,13 @@ If the first parameter is an object then the keys, and values will be set as att
 
 If the last parameter is undefined, and the first parameter is a string then the attribute value with that name will be returned.
 
+`el.attr()` returns `this` when set.
+
 ### el.prop(name|object, property value|undefined)
 
 `el.prop()` works similar to `el.attr()` except what you pass to `el.prop()` is set directly on `el.element`.
+
+`el.prop()` returns `this` when set.
 
 ### el.css(source)
 
@@ -131,6 +135,8 @@ E('.some-class').css({
 });
 ```
 
+You can't do `el.css(name, value)`. Use `el.style.cssProperty` to set, or get each style individually.
+
 ### el.clone(deep)
 
 `el.clone(deep)` is the same as `element.cloneNode(deep)`. Expect a copy of `el.element` to returned wrapped in a new instance of `E()`.
@@ -141,7 +147,7 @@ E('.some-class').css({
 
 ### el.animate(keyFrames, options)
 
-Use `el.element.animate()`. You might need to add a polyfill of web animations. On isn't included with this library.
+Use `el.element.animate()`. You might need to add a polyfill of web animations. A pollyfill isn't included with this library.
 
 ### el.generate()
 
@@ -154,19 +160,27 @@ Asynchronously create DOM elements using `generate`.
 
 ```javascript
 import { generate } from 'ebla';
+
 let paragraph = generate(contents=>`<p>${contents}</p>`);
 paragraph.create(`Asynchronous processes do help.`).then(p=>{
     p.appendTo(document.body);
+    //<p>Asynchronous processes do help.</p>
 });
 ```
 
 ### generate(callback, parent|undefined)
 
-Create a `ElementGenerator` instance.
+Create an `ElementGenerator` instance.
 
 Returned values from `callback` can be anything `E(value)` accepts as a value. `parent` can be undefined, or pass another element as `parent`. The element produced from the value returned form `callback` will be appended to `parent`.
 
 The resolved value from the `ElementGenerator.prototype.create` is a DOM element wrapped in an instance of `E()`.
+
+```javascript
+let paragraph = generate(
+    //The function here gets called on paragraph.create()
+    contents=>`<p>${contents}</p>`);
+```
 
 select()
 ------
@@ -176,10 +190,15 @@ Select an element from the DOM. `select(selector)` returns an array of instances
 spawn()
 -----
 
-Synchronously reate a certain amount of elements using `spawn(value, num)`.
+Synchronously create a certain amount of elements in an array using `spawn(value, num)`.
 
 ```javascript
 import { spawn } from 'ebla';
 let list = spawn('<li></li>', 3);
 console.log(list.length); //prints 3
 ```
+
+About
+---
+
+Let's get along with the DOM a little better.

@@ -1,6 +1,7 @@
 import { toElement, toHTML, isElement } from 'dom-elementals';
 import arrayFrom from 'array-from';
 import objectAssign from 'object-assign';
+import isObject from 'isobject';
 import { mixin } from 'dom-properties-mixin';
 import { requestAnimationFrame } from 'animation-frame-polyfill';
 
@@ -160,7 +161,11 @@ export function spawn(v, count = 1){
 class ElementGenerator {
     constructor(create, parent = null){
         this._create = create;
-        this._parent = parent;
+        if(isObject(parent) && !isElement(parent)){
+            parent = parent.element;
+        }
+
+        this._parent = isElement(parent) ? parent : null;
     }
     create(...args){
         let create = this._create;

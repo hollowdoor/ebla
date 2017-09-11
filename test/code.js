@@ -1247,7 +1247,11 @@ var ElementGenerator = function ElementGenerator(create, parent){
     if ( parent === void 0 ) { parent = null; }
 
     this._create = create;
-    this._parent = parent;
+    if(isobject(parent) && !isElement(parent)){
+        parent = parent.element;
+    }
+
+    this._parent = isElement(parent) ? parent : null;
 };
 ElementGenerator.prototype.create = function create (){
         var arguments$1 = arguments;

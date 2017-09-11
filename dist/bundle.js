@@ -7,6 +7,7 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 var domElementals = require('dom-elementals');
 var arrayFrom = _interopDefault(require('array-from'));
 var objectAssign = _interopDefault(require('object-assign'));
+var isObject = _interopDefault(require('isobject'));
 var domPropertiesMixin = require('dom-properties-mixin');
 var animationFramePolyfill = require('animation-frame-polyfill');
 
@@ -202,7 +203,11 @@ var ElementGenerator = function ElementGenerator(create, parent){
     if ( parent === void 0 ) parent = null;
 
     this._create = create;
-    this._parent = parent;
+    if(isObject(parent) && !domElementals.isElement(parent)){
+        parent = parent.element;
+    }
+
+    this._parent = domElementals.isElement(parent) ? parent : null;
 };
 ElementGenerator.prototype.create = function create (){
         var args = [], len = arguments.length;
