@@ -31,6 +31,13 @@ Use `E(value)` to capture, or manpulate the DOM using an `Ebla` instance.
 
 See [dom-elementals](https://github.com/hollowdoor/dom_elementals) to find what values the `E()` constructor takes. `E(value, ...values)` takes the same input as `toElement` from `dom-elementals`.
 
+Methods, and properties not documented here
+------------------------------
+
+See [dom-properties-mixin](https://github.com/hollowdoor/dom_properties_mixin) to see what properties are on an instance of `E(value)`.
+
+See [dom-events-mixin](https://github.com/hollowdoor/dom_events_mixin) to see about event methods on `E.prototype`.
+
 Static Properties/Methods
 ------------
 
@@ -65,10 +72,6 @@ Properties
 ### el.element
 
 `el.element` is the value passed to `E(value)`, or the literal tag version of `E()`.
-
-### Properties not documented here
-
-See [dom-properties-mixin](https://github.com/hollowdoor/dom_properties_mixin) to see what properties are on an instance of `E(value)`.
 
 
 E() DOM Manpulation Instance Methods

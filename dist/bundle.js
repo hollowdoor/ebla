@@ -9,6 +9,7 @@ var arrayFrom = _interopDefault(require('array-from'));
 var objectAssign = _interopDefault(require('object-assign'));
 var isObject = _interopDefault(require('isobject'));
 var domPropertiesMixin = require('dom-properties-mixin');
+var domEventsMixin = require('dom-events-mixin');
 var animationFramePolyfill = require('animation-frame-polyfill');
 var computedStyles = _interopDefault(require('computed-styles'));
 
@@ -148,6 +149,8 @@ Ebla.prototype.generate = function generate$1 (){
 
     return generate(function (){ return this$1.element.cloneNode(true); });
 };
+
+domEventsMixin.mixinDOMEvents(Ebla.prototype);
 
 function E(value){
     var values = [], len = arguments.length - 1;

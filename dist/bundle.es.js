@@ -3,6 +3,7 @@ import arrayFrom from 'array-from';
 import objectAssign from 'object-assign';
 import isObject from 'isobject';
 import { mixinDOMProperties } from 'dom-properties-mixin';
+import { mixinDOMEvents } from 'dom-events-mixin';
 import { requestAnimationFrame } from 'animation-frame-polyfill';
 import computedStyles from 'computed-styles';
 
@@ -142,6 +143,8 @@ Ebla.prototype.generate = function generate$1 (){
 
     return generate(function (){ return this$1.element.cloneNode(true); });
 };
+
+mixinDOMEvents(Ebla.prototype);
 
 function E(value){
     var values = [], len = arguments.length - 1;

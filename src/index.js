@@ -3,6 +3,7 @@ import arrayFrom from 'array-from';
 import objectAssign from 'object-assign';
 import isObject from 'isobject';
 import { mixinDOMProperties } from 'dom-properties-mixin';
+import { mixinDOMEvents } from 'dom-events-mixin';
 import { requestAnimationFrame } from 'animation-frame-polyfill';
 import computedStyles from 'computed-styles';
 
@@ -112,6 +113,8 @@ class Ebla {
         return generate(()=>this.element.cloneNode(true));
     }
 }
+
+mixinDOMEvents(Ebla.prototype);
 
 export function E(value, ...values){
     if(this instanceof Ebla){
