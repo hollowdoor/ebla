@@ -1674,8 +1674,10 @@ var s = E('<p>Something</p>');
 s.appendTo(document.body);
 s.before('<p>Before something</p>');
 s.after('<p>After something</p>');
-E('#divvy').on('click mousemove', function (event){
+var divvy = E('#divvy');
+divvy.on('click mousemove', function (event){
     console.log(event.type);
+    divvy.style.color = 'red';
 });
 
 var paras1 = generate(function (contents){ return ("<p>" + contents + "</p>"); });

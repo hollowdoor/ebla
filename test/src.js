@@ -8,8 +8,10 @@ let s = E('<p>Something</p>');
 s.appendTo(document.body);
 s.before('<p>Before something</p>');
 s.after('<p>After something</p>');
-E('#divvy').on('click mousemove', event=>{
+let divvy = E('#divvy');
+divvy.on('click mousemove', event=>{
     console.log(event.type);
+    divvy.style.color = 'red';
 });
 
 let paras1 = generate((contents)=>`<p>${contents}</p>`);
