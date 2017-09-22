@@ -1,6 +1,8 @@
 ebla
 ====
 
+![Ebla](https://cldup.com/wwkwgqMhaF.png "Ebla")
+
 Install
 ------
 
