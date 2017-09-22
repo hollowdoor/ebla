@@ -976,6 +976,11 @@ var props = (function (){
             get: function get(){
                 return this.element.rootNode;
             }
+        },
+        data: {
+            get: function get(){
+                return this.element.dataset;
+            }
         }
     };
 
@@ -1675,6 +1680,8 @@ s.appendTo(document.body);
 s.before('<p>Before something</p>');
 s.after('<p>After something</p>');
 var divvy = E('#divvy');
+divvy.data.thing = 'bla thing data';
+console.log(divvy.data.thing);
 divvy.on('click mousemove', function (event){
     console.log(event.type);
     divvy.style.color = 'red';

@@ -9,6 +9,8 @@ s.appendTo(document.body);
 s.before('<p>Before something</p>');
 s.after('<p>After something</p>');
 let divvy = E('#divvy');
+divvy.data.thing = 'bla thing data';
+console.log(divvy.data.thing);
 divvy.on('click mousemove', event=>{
     console.log(event.type);
     divvy.style.color = 'red';
