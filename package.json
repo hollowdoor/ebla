@@ -1,6 +1,6 @@
 {
   "name": "ebla",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Manpulate browser DOM",
   "main": "dist/bundle.js",
   "scripts": {
