@@ -93,6 +93,12 @@ Append child `values` to `el.element`.
 
 Prepend child `values` to `el.element`.
 
+### el.remove(childNode)
+
+Remove `childNode`, or `childNode.element` from `el.element`. `el.remove()` returns the removed child.
+
+If `childNode` is not an element, or doesn't have an element property `el.remove()` removes `el.element`.
+
 ### el.before(...values)
 
 Insert values before `el.element`.

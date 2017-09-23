@@ -16,6 +16,10 @@ divvy.on('click mousemove', event=>{
     divvy.style.color = 'red';
 });
 
+let removed = E('<p>To be removed</p>');
+removed.appendTo(document.body);
+setTimeout(()=>removed.remove(), 2000);
+
 let paras1 = generate((contents)=>`<p>${contents}</p>`);
 paras1.create('one!').then(p=>p.appendTo(document.body));
 let paras2 = generate(

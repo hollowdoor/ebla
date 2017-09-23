@@ -1466,6 +1466,20 @@ Ebla.prototype.prepend = function prepend (){
     });
     return this;
 };
+Ebla.prototype.remove = function remove (child){
+    if(isobject(child) && isElement(child.element)){
+        child = child.element;
+    }
+
+    if(isElement(child)){
+        return this.element.removeChild(child);
+    }
+
+    if(this.element.parentNode){
+        return this.element.parentNode.removeChild(this.element);
+    }
+
+};
 Ebla.prototype.before = function before (){
         var arguments$1 = arguments;
 
@@ -1686,6 +1700,10 @@ divvy.on('click mousemove', function (event){
     console.log(event.type);
     divvy.style.color = 'red';
 });
+
+var removed = E('<p>To be removed</p>');
+removed.appendTo(document.body);
+setTimeout(function (){ return removed.remove(); }, 2000);
 
 var paras1 = generate(function (contents){ return ("<p>" + contents + "</p>"); });
 paras1.create('one!').then(function (p){ return p.appendTo(document.body); });

@@ -32,6 +32,20 @@ class Ebla {
         });
         return this;
     }
+    remove(child){
+        if(isObject(child) && isElement(child.element)){
+            child = child.element;
+        }
+
+        if(isElement(child)){
+            return this.element.removeChild(child);
+        }
+
+        if(this.element.parentNode){
+            return this.element.parentNode.removeChild(this.element);
+        }
+
+    }
     before(...values){
         if(this.element.parentNode){
             values.forEach(value=>{

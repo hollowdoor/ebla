@@ -43,6 +43,20 @@ Ebla.prototype.prepend = function prepend (){
     });
     return this;
 };
+Ebla.prototype.remove = function remove (child){
+    if(isObject(child) && isElement(child.element)){
+        child = child.element;
+    }
+
+    if(isElement(child)){
+        return this.element.removeChild(child);
+    }
+
+    if(this.element.parentNode){
+        return this.element.parentNode.removeChild(this.element);
+    }
+
+};
 Ebla.prototype.before = function before (){
         var this$1 = this;
         var values = [], len = arguments.length;
